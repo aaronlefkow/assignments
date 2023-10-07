@@ -9,6 +9,8 @@ const serviceLines = [
     // Add other service lines with required FTE values
 ];
 
+const selectedNamesForDay = {};
+
 document.addEventListener("DOMContentLoaded", () => {
     const tableBody = document.getElementById("table-body");
 
@@ -119,5 +121,52 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         tableBody.appendChild(row);
+    });
+    // Inside the "change" event listener for select elements
+    document.addEventListener("change", (event) => {
+        const select = event.target;
+
+        // Check if the event target is a select element
+        if (select.tagName === "SELECT") {
+            // Get the selected person's name
+            const selectedPersonName = select.value;
+
+            // Get the day index
+            const day = select.closest("td").cellIndex;
+
+            // Reset the selected names for this day
+            selectedNamesForDay[day] = selectedNamesForDay[day] || {};
+
+            console.log(`Day: ${day}`);
+            console.log(`Selected Person: ${selectedPersonName}`);
+
+            // Track the selected name for this day
+            if (selectedPersonName) {
+                selectedNamesForDay[day][selectedPersonName] =
+                    (selectedNamesForDay[day][selectedPersonName] || 0) + 1;
+            }
+
+            console.log(`Selected Names for Day: ${JSON.stringify(selectedNamesForDay[day])}`);
+
+            // Iterate through all select elements to update the text color of the entire select element
+            document.querySelectorAll("select").forEach((element) => {
+                // Get the selected name for this select element
+                const selectedName = element.value;
+
+                // Get the day index for this select element
+                const selectDay = element.closest("td").cellIndex;
+
+                // Check if this name is selected more than once for the same day
+                if (selectedNamesForDay[selectDay] && selectedNamesForDay[selectDay][selectedName] > 1) {
+                    console.log(`Changing color to red for ${selectedName}`);
+                    element.style.color = "red";
+                } else {
+                    console.log(`Changing color to black for ${selectedName}`);
+                    element.style.color = "black";
+                }
+            });
+
+            console.log(selectedNamesForDay);
+        }
     });
 });
