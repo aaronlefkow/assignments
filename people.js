@@ -1,5 +1,8 @@
 import { peopleData } from "./peopleData.js";
 
+const serviceLines = ["Plastics / Plastic", "General", "Neuro/Spine", "Orthopedics", "ENT/Dental/Anesthesia", "Opthalmalogy", "WC Patient", "Endo WQ", "GI", "Gynecology", "Urology", "Podiatry", "Procedural"];
+export { serviceLines }
+
 document.addEventListener("DOMContentLoaded", () => {
     const tableBody = document.getElementById("table-body");
 
@@ -47,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 row.appendChild(availabilityCell);
             });
             // Training status for each service line
-            const serviceLines = ["Plastics / Plastic", "General", "Neuro/Spine", "Orthopedics", "ENT/Dental/Anesthesia", "Opthalmalogy", "WC Patient", "Endo WQ", "GI", "Gynecology", "Urology", "Podiatry", "Procedural"];
+            // const serviceLines = ["Plastics / Plastic", "General", "Neuro/Spine", "Orthopedics", "ENT/Dental/Anesthesia", "Opthalmalogy", "WC Patient", "Endo WQ", "GI", "Gynecology", "Urology", "Podiatry", "Procedural"];
             serviceLines.forEach((serviceLine) => {
                 const trainingStatusCell = document.createElement("td");
                 const trainingStatus = rowData.trainingStatus[serviceLine] || "N/A";
@@ -59,4 +62,38 @@ document.addEventListener("DOMContentLoaded", () => {
             tableBody.appendChild(row);
         }
     }
+
+    //TEAM FILTERS------------------------------------------------------------------------
+    // Filter for Team column
+    const teamFilterDropdown = document.getElementById("filterTeam");
+    teamFilterDropdown.addEventListener("change", () => {
+        const selectedTeam = teamFilterDropdown.value;
+
+        // Loop through all rows in the table body
+        const rows = tableBody.getElementsByTagName("tr");
+        for (const row of rows) {
+            // Check if the selectedTeam matches the content of the "Team" cell
+            const teamCell = row.querySelector("td:nth-child(2)"); // Assuming "Team" is the second column (index 1)
+            if (selectedTeam === "All" || teamCell.textContent === selectedTeam) {
+                row.style.display = ""; // Show the row
+            } else {
+                row.style.display = "none"; // Hide the row
+            }
+        }
+    });
+
+    // Populate the "Team" filter dropdown with unique team values
+    const uniqueTeams = Array.from(new Set(Object.values(peopleData).map(person => person.team)));
+
+    // Add an "All" option
+    const allTeamOption = document.createElement("option");
+    allTeamOption.textContent = "All";
+    teamFilterDropdown.appendChild(allTeamOption);
+
+    // Add options for each unique team
+    uniqueTeams.forEach((team) => {
+        const option = document.createElement("option");
+        option.textContent = team;
+        teamFilterDropdown.appendChild(option);
+    });
 });
