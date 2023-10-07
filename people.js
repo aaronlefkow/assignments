@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 row.appendChild(availabilityCell);
             });
             // Training status for each service line
-            const serviceLines = ["Surgery", "HTMI", "Cardio"];
+            const serviceLines = ["Plastics / Plastic", "General", "Neuro/Spine", "Orthopedics", "ENT/Dental/Anesthesia", "Opthalmalogy", "WC Patient", "Endo WQ", "GI", "Gynecology", "Urology", "Podiatry", "Procedural"];
             serviceLines.forEach((serviceLine) => {
                 const trainingStatusCell = document.createElement("td");
                 const trainingStatus = rowData.trainingStatus[serviceLine] || "N/A";
