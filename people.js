@@ -1,6 +1,21 @@
 import { peopleData } from "./peopleData.js";
 
-const serviceLines = ["Plastics / Plastic", "General", "Neuro/Spine", "Orthopedics", "ENT/Dental/Anesthesia", "Opthalmalogy", "WC Patient", "Endo WQ", "GI", "Gynecology", "Urology", "Podiatry", "Procedural", "Faxes / IB Pool", "Emails/Voicemail"];
+const serviceLines = [
+    "Plastics / Plastic", 
+    "General", "Neuro/Spine", 
+    "Orthopedics", 
+    "ENT/Dental/Anesthesia", 
+    "Opthalmalogy", 
+    "WC Patient", 
+    "Endo WQ", 
+    "GI", 
+    "Gynecology", 
+    "Urology", 
+    "Podiatry", 
+    "Procedural", 
+    "Faxes / IB Pool", 
+    "Emails/Voicemail"];
+    
 export { serviceLines }
 
 document.addEventListener("DOMContentLoaded", () => {
