@@ -6,7 +6,7 @@ const differentAvailabilityData = {
 
 const ptoData = {
     "Amanda": {
-        // Wednesday: true // John is on PTO on Wednesday
+        Wednesday: true // John is on PTO on Wednesday
     },
 };
 

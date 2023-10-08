@@ -143,6 +143,15 @@ document.addEventListener("DOMContentLoaded", () => {
         assignRandomly();
         updateSelectColors(); // Call the function to update colors
     });
+    consistentlyButton.addEventListener("click", () => {
+        assignRandomly();
+        onlyMonday();
+        copySelectionFromMonday();
+        updateSelectColors(); // Call the function to update colors
+    });
+    colorButton.addEventListener("click", () => {
+        updateSelectColors(); // Call the function to update colors
+    });
 
     function assignRandomly() {
         console.log("Button clicked!");
@@ -177,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         );
                     });
     
-                    console.log(`Available people for ${day} - ${serviceLine}:`, availablePeople); // Check available people
+                    // console.log(`Available people for ${day} - ${serviceLine}:`, availablePeople); // Check available people
     
                     if (availablePeople.length > 0) {
                         // Randomly select a person from the available list
@@ -197,8 +206,8 @@ document.addEventListener("DOMContentLoaded", () => {
     
         selects.forEach((select) => {
             const selectedOption = select.options[select.selectedIndex];
-            const selectedPersonName = selectedOption.value;
-    
+            const selectedPersonName = selectedOption ? selectedOption.value : ''; // Check if selectedOption exists
+        
             // Reset the background color to white for the blank/default option
             select.style.backgroundColor = "white";
     
@@ -233,5 +242,54 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         });
-    }                 
+    }
+    
+    
+    function onlyMonday() {
+        // Loop through all select elements in the table
+        const selects = document.querySelectorAll('select');
+        selects.forEach((select) => {
+            // Check the data-day attribute of the select element
+            const day = select.getAttribute("data-day");
+            
+            // Check if the day is Tuesday, Wednesday, Thursday, or Friday
+            if (day === "Tuesday" || day === "Wednesday" || day === "Thursday" || day === "Friday") {
+                // Reset the select element to its default state
+                select.selectedIndex = 0; // This sets it to the first (empty) option
+            }
+        });
+    }
+
+
+    function copySelectionFromMonday() {
+        // Loop through each service line
+        serviceLines.forEach((serviceLineObj) => {
+            const { name: serviceLine } = serviceLineObj;
+    
+            // Loop through each day from Tuesday to Friday
+            for (let i = 1; i <= 4; i++) {
+                const day = daysOfWeek[i]; // Get the day (Tuesday to Friday)
+    
+                // Find the Monday select element for the current service line
+                const mondaySelects = document.querySelectorAll(`select[data-service-line="${serviceLine}"][data-day="Monday"]`);
+    
+                // Find the current day's select elements for the same service line
+                const currentDaySelects = document.querySelectorAll(`select[data-service-line="${serviceLine}"][data-day="${day}"]`);
+    
+                // Loop through all Monday select elements
+                mondaySelects.forEach((mondaySelect, index) => {
+                    // Get the selected option value for Monday
+                    const selectedOptionValue = mondaySelect.value;
+    
+                    // Find the corresponding current day's select element
+                    const currentDaySelect = currentDaySelects[index];
+    
+                    // Set the same option value for the current day
+                    currentDaySelect.value = selectedOptionValue;
+                });
+            }
+        });
+    }
+    
+    
 });
