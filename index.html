@@ -9,19 +9,20 @@
 <body>
     <button id="assignButton">Assign Randomly</button>
     <button id="consistentlyButton">Assign Consistently</button>
-    <button id="colorButton">Color</button>
+    <button id="resetSelectorsButton">Reset</button>
+    <!-- <button id="removeSelectedButton">Remove Selected</button> -->
+ 
     <table>
         <thead>
-            <tr id="unassigned-row">
-                <!-- Headers for each day will be added dynamically -->
-            </tr>
             <tr>
                 <th>Service Line</th>
-                <th>Monday</th>
-                <th>Tuesday</th>
-                <th>Wednesday</th>
-                <th>Thursday</th>
-                <th>Friday</th>
+                <div id="unassignedPeople">
+                    <th><div id="unassignedPeopleMonday"></div> Monday </th>
+                    <th><div id="unassignedPeopleTuesday"></div> Tuesday </th>
+                    <th><div id="unassignedPeopleWednesday"></div> Wednesday </th>
+                    <th><div id="unassignedPeopleThursday"></div> Thursday </th>
+                    <th><div id="unassignedPeopleFriday"></div> Friday </th>
+                </div>
             </tr>
         </thead>
         <tbody id="table-body">

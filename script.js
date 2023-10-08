@@ -16,6 +16,8 @@ const serviceLines = [
     { name: "Urology", requiredFTE: 2 },
     { name: "Podiatry", requiredFTE: 1 },
     { name: "Procedural", requiredFTE: 1 },
+    { name: "Faxes / IB Pool", requiredFTE: 1 },
+    { name: "Emails/Voicemail", requiredFTE: 1 },
 ];
 
 const selectedNamesForDay = {};
@@ -142,6 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
     assignButton.addEventListener("click", () => {
         assignRandomly();
         updateSelectColors(); // Call the function to update colors
+        removeSelectedOptions();
     });
     const consistentlyButton = document.getElementById("consistentlyButton"); // Add this line
     consistentlyButton.addEventListener("click", () => {
@@ -149,37 +152,33 @@ document.addEventListener("DOMContentLoaded", () => {
         onlyMonday();
         copySelectionFromMonday();
         updateSelectColors(); // Call the function to update colors
-        updateUnassignedHeaders();
-    });
-    const colorButton = document.getElementById("colorButton"); // Assuming you have a colorButton
-    colorButton.addEventListener("click", () => {
-        updateSelectColors(); // Call the function to update colors
+        removeSelectedOptions();
     });
 
     function assignRandomly() {
         console.log("Button clicked!");
         // Create an array to store assigned people for each day
         const assignedPeopleByDay = {};
-    
+
         // Iterate through the days of the week and initialize the assignedPeopleByDay object
         daysOfWeek.forEach((day) => {
             assignedPeopleByDay[day] = [];
         });
-    
+
         // Iterate through the service lines and assign people
         serviceLines.forEach((serviceLineObj) => {
             const { name: serviceLine } = serviceLineObj;
-    
+
             daysOfWeek.forEach((day) => {
                 const selects = document.querySelectorAll(`select[data-day="${day}"][data-service-line="${serviceLine}"]:not([disabled])`);
-    
+
                 selects.forEach((select) => {
                     // Filter available people for this day and service line
                     const availablePeople = Object.keys(peopleData).filter((person) => {
                         const personAvailability = peopleData[person].differentAvailability && peopleData[person].differentAvailability[day]
                             ? peopleData[person].differentAvailability[day]
                             : peopleData[person].availability[day];
-    
+
                         return (
                             personAvailability &&
                             (peopleData[person].trainingStatus[serviceLine] === "Trained" ||
@@ -188,14 +187,14 @@ document.addEventListener("DOMContentLoaded", () => {
                             !assignedPeopleByDay[day].includes(person) // Exclude if already assigned for this day
                         );
                     });
-    
+
                     // console.log(`Available people for ${day} - ${serviceLine}:`, availablePeople); // Check available people
-    
+
                     if (availablePeople.length > 0) {
                         // Randomly select a person from the available list
                         const randomIndex = Math.floor(Math.random() * availablePeople.length);
                         const randomPerson = availablePeople[randomIndex];
-    
+
                         // Assign the selected person to the select element
                         select.value = randomPerson;
                         assignedPeopleByDay[day].push(randomPerson);
@@ -206,14 +205,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     function updateSelectColors() {
         const selects = document.querySelectorAll('select');
-    
+
         selects.forEach((select) => {
             const selectedOption = select.options[select.selectedIndex];
             const selectedPersonName = selectedOption ? selectedOption.value : ''; // Check if selectedOption exists
-        
+
             // Reset the background color to white for the blank/default option
             select.style.backgroundColor = "white";
-    
+
             // Reset the background color for all options to their respective team colors
             select.querySelectorAll("option").forEach((option) => {
                 const personName = option.value;
@@ -231,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     option.style.backgroundColor = "white";
                 }
             });
-    
+
             // Additionally, set the background color of the select element itself
             // based on the selected person's team
             if (selectedPersonName) {
@@ -246,15 +245,15 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-    
-    
+
+
     function onlyMonday() {
         // Loop through all select elements in the table
         const selects = document.querySelectorAll('select');
         selects.forEach((select) => {
             // Check the data-day attribute of the select element
             const day = select.getAttribute("data-day");
-            
+
             // Check if the day is Tuesday, Wednesday, Thursday, or Friday
             if (day === "Tuesday" || day === "Wednesday" || day === "Thursday" || day === "Friday") {
                 // Reset the select element to its default state
@@ -268,31 +267,126 @@ document.addEventListener("DOMContentLoaded", () => {
         // Loop through each service line
         serviceLines.forEach((serviceLineObj) => {
             const { name: serviceLine } = serviceLineObj;
-    
+
             // Loop through each day from Tuesday to Friday
             for (let i = 1; i <= 4; i++) {
                 const day = daysOfWeek[i]; // Get the day (Tuesday to Friday)
-    
+
                 // Find the Monday select element for the current service line
                 const mondaySelects = document.querySelectorAll(`select[data-service-line="${serviceLine}"][data-day="Monday"]`);
-    
+
                 // Find the current day's select elements for the same service line
                 const currentDaySelects = document.querySelectorAll(`select[data-service-line="${serviceLine}"][data-day="${day}"]`);
-    
+
                 // Loop through all Monday select elements
                 mondaySelects.forEach((mondaySelect, index) => {
                     // Get the selected option value for Monday
                     const selectedOptionValue = mondaySelect.value;
-    
+
                     // Find the corresponding current day's select element
                     const currentDaySelect = currentDaySelects[index];
-    
+
                     // Set the same option value for the current day
                     currentDaySelect.value = selectedOptionValue;
                 });
             }
         });
     }
-    
-    
+
+    const selects = document.querySelectorAll('select');
+    selects.forEach((select) => {
+        select.addEventListener("change", () => {
+            removeSelectedOptions();
+        });
+    });
+
+    const resetSelectorsButton = document.getElementById("resetSelectorsButton");
+    resetSelectorsButton.addEventListener("click", () => {
+        resetAllSelectors();
+    });
+    function resetAllSelectors() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach((select) => {
+            select.selectedIndex = 0; // Set to the first (empty) option
+        });
+        updateSelectColors();
+        removeSelectedOptions();
+    }
 });
+
+
+function generateAvailabilityByDay(data) {
+    const availabilityByDay = {};
+
+    for (const person in data) {
+        const personData = data[person];
+
+        for (const day in personData.availability) {
+            // Check if the person is not on PTO for that day
+            if (!personData.pto || !personData.pto[day]) {
+                // Add the person to the availabilityByDay object for that day
+                if (!availabilityByDay[day]) {
+                    availabilityByDay[day] = [];
+                }
+                availabilityByDay[day].push(person);
+            }
+        }
+    }
+    return availabilityByDay;
+}
+
+const availabilityByDay = generateAvailabilityByDay(peopleData);
+console.log(availabilityByDay);
+
+
+
+
+
+
+// Assign the button for removeSelectedOptions
+const removeSelectedButton = document.getElementById("removeSelectedButton");
+removeSelectedButton.addEventListener("click", () => {
+    removeSelectedOptions();
+});
+
+// Function to remove selected options from availabilityByDay
+function removeSelectedOptions() {
+    const availabilityByDay = generateAvailabilityByDay(peopleData);
+    const selects = document.querySelectorAll('select');
+
+    selects.forEach((select) => {
+        const selectedOption = select.options[select.selectedIndex];
+        const selectedPersonName = selectedOption ? selectedOption.value : ''; // Check if selectedOption exists
+
+        // Check if a person is selected
+        if (selectedPersonName) {
+            const day = select.getAttribute("data-day");
+
+            // Remove the selected person from availabilityByDay for the corresponding day
+            if (availabilityByDay[day]) {
+                const indexToRemove = availabilityByDay[day].indexOf(selectedPersonName);
+                if (indexToRemove !== -1) {
+                    availabilityByDay[day].splice(indexToRemove, 1);
+                }
+            }
+        }
+    });
+    // Update the content of the "unassignedPeople" div with the availability data
+    const unassignedPeopleMondayDiv = document.getElementById("unassignedPeopleMonday");
+    unassignedPeopleMondayDiv.innerHTML = availabilityByDay["Monday"].map(item => JSON.stringify(item, null, 2)).join(", ");
+
+    const unassignedPeopleTuesdayDiv = document.getElementById("unassignedPeopleTuesday");
+    unassignedPeopleTuesdayDiv.innerHTML = availabilityByDay["Tuesday"].map(item => JSON.stringify(item, null, 2)).join(", ");
+
+    const unassignedPeopleWednesdayDiv = document.getElementById("unassignedPeopleWednesday");
+    unassignedPeopleWednesday.innerHTML = availabilityByDay["Wednesday"].map(item => JSON.stringify(item, null, 2)).join(",\n");
+
+    const unassignedPeopleThursdayDiv = document.getElementById("unassignedPeopleThursday");
+    unassignedPeopleThursdayDiv.innerHTML = availabilityByDay["Thursday"].map(item => JSON.stringify(item, null, 2)).join(",\n");
+
+    const unassignedPeopleFridayDiv = document.getElementById("unassignedPeopleFriday");
+    unassignedPeopleFridayDiv.innerHTML = availabilityByDay["Friday"].map(item => JSON.stringify(item, null, 2)).join(",\n");
+
+
+    console.log("AvailabilityByDay after removing selected options:", availabilityByDay);
+}
