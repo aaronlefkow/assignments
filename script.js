@@ -143,12 +143,15 @@ document.addEventListener("DOMContentLoaded", () => {
         assignRandomly();
         updateSelectColors(); // Call the function to update colors
     });
+    const consistentlyButton = document.getElementById("consistentlyButton"); // Add this line
     consistentlyButton.addEventListener("click", () => {
         assignRandomly();
         onlyMonday();
         copySelectionFromMonday();
         updateSelectColors(); // Call the function to update colors
+        updateUnassignedHeaders();
     });
+    const colorButton = document.getElementById("colorButton"); // Assuming you have a colorButton
     colorButton.addEventListener("click", () => {
         updateSelectColors(); // Call the function to update colors
     });
