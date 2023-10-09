@@ -138,25 +138,44 @@ document.addEventListener("DOMContentLoaded", () => {
                 selectsForDayAndServiceLine.push(select);
             }
 
-            // Create and append the extra selects (without specific attributes)
-            for (let i = 0; i < 2; i++) {
+            // Create and append the extra selects (with correct data-day and data-service-line attributes)
+            for (let i = 0; i < 1; i++) {
                 const select = document.createElement("select");
 
                 select.classList.add("extra-select");
 
+                // Get the data-day and data-service-line values from the first select for this day and service line
+                const firstSelectForDayAndServiceLine = selectsForDayAndServiceLine[0];
+                const dayValue = firstSelectForDayAndServiceLine.getAttribute("data-day");
+                const serviceLineValue = firstSelectForDayAndServiceLine.getAttribute("data-service-line");
+
+                // Set the data-day and data-service-line attributes for the extra select
+                select.setAttribute("data-day", dayValue);
+                select.setAttribute("data-service-line", serviceLineValue);
+
                 // Clone the options from the first select of this day and service line
-                selectsForDayAndServiceLine[0].querySelectorAll("option").forEach((option) => {
+                firstSelectForDayAndServiceLine.querySelectorAll("option").forEach((option) => {
                     select.appendChild(option.cloneNode(true));
                 });
 
                 cell.appendChild(select);
             }
 
+
             row.appendChild(cell);
         });
 
         tableBody.appendChild(row);
     });
+
+    // Add an event listener to all selectors to call removeSelectedOptions on change
+    const allSelectors = document.querySelectorAll('select');
+    allSelectors.forEach((select) => {
+        select.addEventListener("change", () => {
+            removeSelectedOptions();
+        });
+    });
+
 
     //BUTTON ASSIGNMENTS----------------------------------------------------
     // Add an event listener to the "Assign Randomly" button
@@ -176,9 +195,10 @@ document.addEventListener("DOMContentLoaded", () => {
         updateSelectColors(); // Call the function to update colors
         removeSelectedOptions();
     });
-    const colorButton = document.getElementById("colorButton");
-    colorButton.addEventListener("click", () => {
-        updateAllSelectColors(); // Call the function to update colors
+    const resetButton = document.getElementById("resetButton"); // Add this line
+    resetButton.addEventListener("click", () => {
+        resetAllSelectors();
+        removeSelectedOptions();
     });
 
     function assignRandomly() {
@@ -199,36 +219,38 @@ document.addEventListener("DOMContentLoaded", () => {
                 const selects = document.querySelectorAll(`select[data-day="${day}"][data-service-line="${serviceLine}"]:not([disabled])`);
 
                 selects.forEach((select) => {
-                    // Filter available people for this day and service line
-                    const availablePeople = Object.keys(peopleData).filter((person) => {
-                        const personAvailability = peopleData[person].differentAvailability && peopleData[person].differentAvailability[day]
-                            ? peopleData[person].differentAvailability[day]
-                            : peopleData[person].availability[day];
+                    // Skip selects with the "extra-select" class
+                    if (!select.classList.contains('extra-select')) {
+                        // Filter available people for this day and service line
+                        const availablePeople = Object.keys(peopleData).filter((person) => {
+                            const personAvailability = peopleData[person].differentAvailability && peopleData[person].differentAvailability[day]
+                                ? peopleData[person].differentAvailability[day]
+                                : peopleData[person].availability[day];
 
-                        return (
-                            personAvailability &&
-                            (peopleData[person].trainingStatus[serviceLine] === "Trained" ||
-                                peopleData[person].trainingStatus[serviceLine] === "In Training") &&
-                            !peopleData[person]?.pto?.[day] &&
-                            !assignedPeopleByDay[day].includes(person) // Exclude if already assigned for this day
-                        );
-                    });
+                            return (
+                                personAvailability &&
+                                (peopleData[person].trainingStatus[serviceLine] === "Trained" ||
+                                    peopleData[person].trainingStatus[serviceLine] === "In Training") &&
+                                !peopleData[person]?.pto?.[day] &&
+                                !assignedPeopleByDay[day].includes(person) // Exclude if already assigned for this day
+                            );
+                        });
 
-                    // console.log(`Available people for ${day} - ${serviceLine}:`, availablePeople); // Check available people
+                        if (availablePeople.length > 0) {
+                            // Randomly select a person from the available list
+                            const randomIndex = Math.floor(Math.random() * availablePeople.length);
+                            const randomPerson = availablePeople[randomIndex];
 
-                    if (availablePeople.length > 0) {
-                        // Randomly select a person from the available list
-                        const randomIndex = Math.floor(Math.random() * availablePeople.length);
-                        const randomPerson = availablePeople[randomIndex];
-
-                        // Assign the selected person to the select element
-                        select.value = randomPerson;
-                        assignedPeopleByDay[day].push(randomPerson);
+                            // Assign the selected person to the select element
+                            select.value = randomPerson;
+                            assignedPeopleByDay[day].push(randomPerson);
+                        }
                     }
                 });
             });
-        });
+        }); // <--- Added this closing bracket
     }
+
     function updateSelectColors() {
         const selects = document.querySelectorAll('select');
 
@@ -275,7 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-
+    
     function onlyMonday() {
         // Loop through all select elements in the table
         const selects = document.querySelectorAll('select');
@@ -329,11 +351,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    const resetSelectorsButton = document.getElementById("resetSelectorsButton");
-    resetSelectorsButton.addEventListener("click", () => {
-        resetAllSelectors();
-    });
     function resetAllSelectors() {
+        console.log("Resetting selectors!");
         const selects = document.querySelectorAll('select');
         selects.forEach((select) => {
             select.selectedIndex = 0; // Set to the first (empty) option
@@ -368,18 +387,16 @@ const availabilityByDay = generateAvailabilityByDay(peopleData);
 console.log(availabilityByDay);
 
 
-
-
-
-
 // Assign the button for removeSelectedOptions
 const removeSelectedButton = document.getElementById("removeSelectedButton");
 removeSelectedButton.addEventListener("click", () => {
     removeSelectedOptions();
 });
 
+
 // Function to remove selected options from availabilityByDay
 function removeSelectedOptions() {
+    console.log("Updating top row availability");
     const availabilityByDay = generateAvailabilityByDay(peopleData);
     const selects = document.querySelectorAll('select');
 
