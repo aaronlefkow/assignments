@@ -1,21 +1,21 @@
 import { peopleData } from "./peopleData.js";
 
 const serviceLines = [
-    "Plastics / Plastic", 
-    "General", "Neuro/Spine", 
-    "Orthopedics", 
-    "ENT/Dental/Anesthesia", 
-    "Opthalmalogy", 
-    "WC Patient", 
-    "Endo WQ", 
-    "GI", 
-    "Gynecology", 
-    "Urology", 
-    "Podiatry", 
-    "Procedural", 
-    "Faxes / IB Pool", 
+    "Plastics / Plastic",
+    "General", "Neuro/Spine",
+    "Orthopedics",
+    "ENT/Dental/Anesthesia",
+    "Opthalmalogy",
+    "WC Patient",
+    "Endo WQ",
+    "GI",
+    "Gynecology",
+    "Urology",
+    "Podiatry",
+    "Procedural",
+    "Faxes / IB Pool",
     "Emails/Voicemail"];
-    
+
 export { serviceLines }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -48,6 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Check for PTO
                 if (rowData.pto && rowData.pto[day]) {
                     availabilityCell.textContent = "PTO";
+                    availabilityCell.classList.add("pto-cell"); // Add a class for PTO
                 } else {
                     // Check for differentAvailability or use default availability
                     const availabilityData = rowData.differentAvailability && rowData.differentAvailability[day]
@@ -56,6 +57,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     // Check if availabilityData is not null and has startTime and endTime
                     if (availabilityData && availabilityData.startTime && availabilityData.endTime) {
+                        const normalAvailability = rowData.availability && rowData.availability[day];
+                        if (
+                            normalAvailability &&
+                            (normalAvailability.startTime !== availabilityData.startTime ||
+                                normalAvailability.endTime !== availabilityData.endTime)
+                        ) {
+                            availabilityCell.classList.add("different-availability-cell"); // Add a class for different availability
+                        }
                         availabilityCell.textContent = `${availabilityData.startTime} - ${availabilityData.endTime}`;
                     } else {
                         availabilityCell.textContent = "N/A";

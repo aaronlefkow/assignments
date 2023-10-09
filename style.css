@@ -34,3 +34,11 @@ td select {
     /* max-width: 200px; */
     margin-bottom: 20px;
 }
+
+.different-availability-cell {
+    background-color: yellow; /* Background color for different availability */
+}
+
+.pto-cell {
+    background-color: yellow; /* Background color for PTO */
+}
