@@ -42,3 +42,7 @@ td select {
 .pto-cell {
     background-color: yellow; /* Background color for PTO */
 }
+
+.extra-select {
+    background-color: lightgrey;
+}

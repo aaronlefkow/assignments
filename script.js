@@ -40,11 +40,14 @@ document.addEventListener("DOMContentLoaded", () => {
             // Calculate the number of dropdowns required based on FTE
             const numDropdowns = Math.ceil(requiredFTE);
 
+            // Create an array to store the selects for this day and service line
+            const selectsForDayAndServiceLine = [];
+
             // Create and append the dropdowns
             for (let i = 0; i < numDropdowns; i++) {
                 const select = document.createElement("select");
 
-                // Add data-day and data-service-line attributes
+                // Add data-day and data-service-line attributes.
                 select.setAttribute("data-day", day); // Set the day as the data-day attribute
                 select.setAttribute("data-service-line", serviceLine); // Set the service line as the data-service-line attribute
 
@@ -130,6 +133,23 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 });
                 cell.appendChild(select);
+
+                // Add the select to the array for this day and service line
+                selectsForDayAndServiceLine.push(select);
+            }
+
+            // Create and append the extra selects (without specific attributes)
+            for (let i = 0; i < 2; i++) {
+                const select = document.createElement("select");
+
+                select.classList.add("extra-select");
+
+                // Clone the options from the first select of this day and service line
+                selectsForDayAndServiceLine[0].querySelectorAll("option").forEach((option) => {
+                    select.appendChild(option.cloneNode(true));
+                });
+
+                cell.appendChild(select);
             }
 
             row.appendChild(cell);
@@ -142,17 +162,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // Add an event listener to the "Assign Randomly" button
     const assignButton = document.getElementById("assignButton");
     assignButton.addEventListener("click", () => {
+        resetAllSelectors();
         assignRandomly();
         updateSelectColors(); // Call the function to update colors
         removeSelectedOptions();
     });
     const consistentlyButton = document.getElementById("consistentlyButton"); // Add this line
     consistentlyButton.addEventListener("click", () => {
+        resetAllSelectors();
         assignRandomly();
         onlyMonday();
         copySelectionFromMonday();
         updateSelectColors(); // Call the function to update colors
         removeSelectedOptions();
+    });
+    const colorButton = document.getElementById("colorButton");
+    colorButton.addEventListener("click", () => {
+        updateAllSelectColors(); // Call the function to update colors
     });
 
     function assignRandomly() {
@@ -207,40 +233,43 @@ document.addEventListener("DOMContentLoaded", () => {
         const selects = document.querySelectorAll('select');
 
         selects.forEach((select) => {
-            const selectedOption = select.options[select.selectedIndex];
-            const selectedPersonName = selectedOption ? selectedOption.value : ''; // Check if selectedOption exists
+            // Check if the select has the "extra-select" class
+            if (!select.classList.contains('extra-select')) {
+                const selectedOption = select.options[select.selectedIndex];
+                const selectedPersonName = selectedOption ? selectedOption.value : '';
 
-            // Reset the background color to white for the blank/default option
-            select.style.backgroundColor = "white";
+                // Reset the background color to white for the blank/default option
+                select.style.backgroundColor = "white";
 
-            // Reset the background color for all options to their respective team colors
-            select.querySelectorAll("option").forEach((option) => {
-                const personName = option.value;
-                if (personName) {
-                    const personTeam = peopleData[personName].team;
-                    if (personTeam === "Blue") {
-                        option.style.backgroundColor = "lightblue";
-                    } else if (personTeam === "Green") {
-                        option.style.backgroundColor = "lightgreen";
+                // Reset the background color for all options to their respective team colors
+                select.querySelectorAll("option").forEach((option) => {
+                    const personName = option.value;
+                    if (personName) {
+                        const personTeam = peopleData[personName].team;
+                        if (personTeam === "Blue") {
+                            option.style.backgroundColor = "lightblue";
+                        } else if (personTeam === "Green") {
+                            option.style.backgroundColor = "lightgreen";
+                        } else {
+                            option.style.backgroundColor = "white"; // Reset to default
+                        }
                     } else {
-                        option.style.backgroundColor = "white"; // Reset to default
+                        // Set the blank/default option to have a white background color
+                        option.style.backgroundColor = "white";
                     }
-                } else {
-                    // Set the blank/default option to have a white background color
-                    option.style.backgroundColor = "white";
-                }
-            });
+                });
 
-            // Additionally, set the background color of the select element itself
-            // based on the selected person's team
-            if (selectedPersonName) {
-                const selectedPersonTeam = peopleData[selectedPersonName].team;
-                if (selectedPersonTeam === "Blue") {
-                    select.style.backgroundColor = "lightblue";
-                } else if (selectedPersonTeam === "Green") {
-                    select.style.backgroundColor = "lightgreen";
-                } else {
-                    select.style.backgroundColor = "white"; // Reset to default
+                // Additionally, set the background color of the select element itself
+                // based on the selected person's team
+                if (selectedPersonName) {
+                    const selectedPersonTeam = peopleData[selectedPersonName].team;
+                    if (selectedPersonTeam === "Blue") {
+                        select.style.backgroundColor = "lightblue";
+                    } else if (selectedPersonTeam === "Green") {
+                        select.style.backgroundColor = "lightgreen";
+                    } else {
+                        select.style.backgroundColor = "white"; // Reset to default
+                    }
                 }
             }
         });
@@ -390,3 +419,4 @@ function removeSelectedOptions() {
 
     console.log("AvailabilityByDay after removing selected options:", availabilityByDay);
 }
+
