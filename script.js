@@ -418,20 +418,10 @@ function removeSelectedOptions() {
         }
     });
     // Update the content of the "unassignedPeople" div with the availability data
-    const unassignedPeopleMondayDiv = document.getElementById("unassignedPeopleMonday");
-    unassignedPeopleMondayDiv.innerHTML = availabilityByDay["Monday"].map(item => JSON.stringify(item, null, 2)).join(", ");
-
-    const unassignedPeopleTuesdayDiv = document.getElementById("unassignedPeopleTuesday");
-    unassignedPeopleTuesdayDiv.innerHTML = availabilityByDay["Tuesday"].map(item => JSON.stringify(item, null, 2)).join(", ");
-
-    const unassignedPeopleWednesdayDiv = document.getElementById("unassignedPeopleWednesday");
-    unassignedPeopleWednesday.innerHTML = availabilityByDay["Wednesday"].map(item => JSON.stringify(item, null, 2)).join(",\n");
-
-    const unassignedPeopleThursdayDiv = document.getElementById("unassignedPeopleThursday");
-    unassignedPeopleThursdayDiv.innerHTML = availabilityByDay["Thursday"].map(item => JSON.stringify(item, null, 2)).join(",\n");
-
-    const unassignedPeopleFridayDiv = document.getElementById("unassignedPeopleFriday");
-    unassignedPeopleFridayDiv.innerHTML = availabilityByDay["Friday"].map(item => JSON.stringify(item, null, 2)).join(",\n");
+    for (const day of daysOfWeek) {
+        const unassignedPeopleDiv = document.getElementById(`unassignedPeople${day}`);
+        unassignedPeopleDiv.innerHTML = availabilityByDay[day].join(", ");
+    }
 
 
     console.log("AvailabilityByDay after removing selected options:", availabilityByDay);
