@@ -6,6 +6,11 @@ body {
     margin-bottom: 5px;
 }
 
+.top {
+    display: flex;
+    justify-content: space-between;
+}
+
 thead {
     position: sticky;
     top: 0;
